@@ -2,7 +2,7 @@
 function gloves_defect_detection(image_path)
 
     % Read in the images
-    img = imread('img6.jpg');
+    img = imread('img5.jpg');
 
     % Convert the image to grayscale
     grayImage = rgb2gray(img);
@@ -22,7 +22,7 @@ function gloves_defect_detection(image_path)
     cleanedImage = bwareaopen(bw, 50); % Remove small objects
     filledImage = imfill(bw, 'holes'); % Fill holes
     
-    img_sub = filledImage & -cleanedImage
+    img_sub = filledImage & -cleanedImage;
     imshow(img_sub);
 
     % Label the defects
