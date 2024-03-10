@@ -16,13 +16,11 @@ function gloves_defect_detection(image_path)
     bw = im2bw(grayImage, thresholdValue);
     %bw = imbinarize(grayImage);
     bw = ~bw;
-    imshow(bw),title("ib");
 
     
     % Use morphological operations to remove noise and fill holes
     cleanedImage = bwareaopen(bw, 50); % Remove small objects
     filledImage = imfill(bw, 'holes'); % Fill holes
-    %imshow(filledImage),title("filled");
     
     img_sub = filledImage & -cleanedImage
     imshow(img_sub);
