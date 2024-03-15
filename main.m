@@ -1,7 +1,7 @@
 close all;
 
 %%% ONLY WORKS FOR COLOUR IMAGE NOW
-img = imread('img3.jpg');
+img = imread('img6.jpg');
 img_hsv = rgb2hsv(img);
 
 glove_lower = [0,0,0] / 255; % Normalize to the range [0, 1]
