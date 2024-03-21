@@ -101,4 +101,5 @@ function glove_contour = detect_glove_contour(image)
     end
     % hold off;
     glove_contour = glove_contours{largest_contour_Index};
+    % disp(size(glove_contour, 1));
 end
