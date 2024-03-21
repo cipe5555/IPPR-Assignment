@@ -1,8 +1,25 @@
 close all;
 clearvars;
 
-img = imread('img24.jpg');
+img = imread('img32.jpg');
+figure; imshow(img); title('original');
 [rows, cols, ~] = size(img);
+disp(size(img));
+
+target_size = 1500;
+scale_width = cols/target_size;
+scale_height = rows/target_size;
+
+if scale_height > scale_width
+    target_size = [target_size NaN];
+else
+    target_size = [NaN target_size];
+end
+
+img = imresize(img, target_size);
+% figure; imshow(resized_img); title('resized');
+
+disp(size(img));
 
 % main_glove_contour = detect_glove_contour(img);
 [glove_mask, main_glove_contour] = threshold_glove(img);
@@ -18,10 +35,10 @@ figure; imshow(glove_mask); title('Glove Mask');
 
 boundaries = bwboundaries(glove_mask);
 
-min_tear_area = 5000;
+min_tear_area = 1200;
 
-min_hole_area = 600;
-max_hole_area = 1000;
+min_hole_area = 520;
+max_hole_area = 1200;
 
 % stain_threshold_radius = 5;
 % stain_lower = [0,0,0] / 255;
@@ -41,7 +58,7 @@ for k = 1:length(boundaries)
     % disp(size(main_glove_contour, 1));
     % disp(size(boundary, 1));
     if size(main_glove_contour, 1) - size(boundary, 1) > size(main_glove_contour, 1) - (size(main_glove_contour, 1)*0.9)
-        
+
         % plot(boundary(:,2), boundary(:,1), 'g', 'LineWidth', 2);
         % Calculate centroid of the current contour
         % centroid = mean(boundary);
@@ -50,25 +67,9 @@ for k = 1:length(boundaries)
                                    max(boundary(:,1)) - min(boundary(:,1))];
         centroid = [bounding_box(1) + bounding_box(3)/2, bounding_box(2) + bounding_box(4)/2];
         defect_area = polyarea(boundary(:,2), boundary(:,1));
-        
-
-        % for i = round(max(1, centroid(2) - stain_threshold_radius)):round(min(rows, centroid(2) + stain_threshold_radius))
-        %     for j = round(max(1, centroid(1) - stain_threshold_radius)):round(min(cols, centroid(1) + stain_threshold_radius))
-        %         % Get the HSV value of the current pixel
-        %         % centroid_hsv = img_hsv(i, j, :);
-        %         centroid_hsv = reshape(img_hsv(i, j, :), 1, []); % Reshape centroid_hsv to a row vector
-        %         disp(centroid_hsv);
-        % 
-        %         % Check if the pixel falls within the specified range
-        %         if all(centroid_hsv >= stain_lower) && all(centroid_hsv <= stain_upper)
-        %         % if all(centroid_hsv >= stain_lower) && all(centroid_hsv <= stain_upper)
-        %             count_in_range = count_in_range + 1;        
-        %         end
-        %     end
-        % end
 
         % text(centroid(1), centroid(2), num2str(defect_area), 'Color', 'r', 'HorizontalAlignment', 'center', 'VerticalAlignment', 'middle');
-        
+
         % text(centroid(1), centroid(2), num2str(k), 'Color', 'r', 'HorizontalAlignment', 'center', 'VerticalAlignment', 'middle');
 
         % Check if centroid is inside the main glove contour
@@ -77,18 +78,21 @@ for k = 1:length(boundaries)
         if is_inside
 
             % disp(k);
-            is_stain = detect_stain(img, boundary, k);
+            stain_or_dirt = detect_stain(img, boundary, k);
             % distances = sqrt(sum(bsxfun(@minus, boundary, centroid).^2, 2));
-            
-            if is_stain
+
+            if strcmp(stain_or_dirt, 'Dirt')
+                rectangle('Position', bounding_box, 'EdgeColor', 'b', 'LineWidth', 2);
+                text(centroid(1), centroid(2), 'Dirt', 'Color', 'r', 'HorizontalAlignment', 'center', 'VerticalAlignment', 'middle');
+            elseif strcmp(stain_or_dirt, 'Stain')
                 rectangle('Position', bounding_box, 'EdgeColor', 'b', 'LineWidth', 2);
                 text(centroid(1), centroid(2), 'Stain', 'Color', 'r', 'HorizontalAlignment', 'center', 'VerticalAlignment', 'middle');
             elseif defect_area < max_hole_area && defect_area > min_hole_area
                 rectangle('Position', bounding_box, 'EdgeColor', 'b', 'LineWidth', 2);
                 text(centroid(1), centroid(2), 'Hole', 'Color', 'r', 'HorizontalAlignment', 'center', 'VerticalAlignment', 'middle');
-            elseif defect_area > min_tear_area 
+            elseif defect_area >= min_tear_area 
                 rectangle('Position', bounding_box, 'EdgeColor', 'b', 'LineWidth', 2);
-                text(centroid(1), centroid(2), num2str(k), 'Color', 'r', 'HorizontalAlignment', 'center', 'VerticalAlignment', 'middle');
+                text(centroid(1), centroid(2), 'Tear', 'Color', 'r', 'HorizontalAlignment', 'center', 'VerticalAlignment', 'middle');
             end
         end
     end

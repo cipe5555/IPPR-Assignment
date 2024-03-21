@@ -33,17 +33,17 @@ function glove_contour = detect_glove_contour(image)
     dominant_color = [dominant_hue, dominant_saturation, dominant_value];
     % disp(dominant_color);
 
-    bright_lower = [0,0,128] / 255;
-    bright_upper = [255,255,255] / 255;
+    bright_bg_lower = [0,0,128] / 255;
+    bright_bg_upper = [255,255,255] / 255;
 
-    dark_lower = [0,0,0] / 255;
-    dark_upper = [255,255,127] / 255;
+    dark_bg_lower = [0,0,0] / 255;
+    dark_bg_upper = [255,255,127] / 255;
 
     % Check if dominant color is within the first range
-    is_dark = all(dominant_color >= dark_lower) && all(dominant_color <= dark_upper);
+    is_dark = all(dominant_color >= dark_bg_lower) && all(dominant_color <= dark_bg_upper);
 
     % Check if dominant color is within the second range
-    is_bright = all(dominant_color >= bright_lower) && all(dominant_color <= bright_upper);
+    is_bright = all(dominant_color >= bright_bg_lower) && all(dominant_color <= bright_bg_upper);
 
     % Define lower and upper bounds for glove color in HSV space
     if is_bright

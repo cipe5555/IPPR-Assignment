@@ -47,9 +47,9 @@ function [thresholded_glove, main_glove_contour] = threshold_glove(image)
     saturationThreshold = [saturationMean - threshold_multipler*saturationStd, saturationMean + threshold_multipler*saturationStd]; % Example threshold range for saturation
     valueThreshold = [valueMean - threshold_multipler*valueStd, valueMean + threshold_multipler*valueStd]; % Example threshold range for value
     
-    % disp(hueThreshold);
-    % disp(saturationThreshold);
-    % disp(valueThreshold);
+    disp(hueThreshold);
+    disp(saturationThreshold);
+    disp(valueThreshold);
     
     % Thresholding
     binaryMask = (hueChannel >= hueThreshold(1) & hueChannel <= hueThreshold(2)) & ...
