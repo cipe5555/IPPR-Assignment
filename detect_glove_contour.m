@@ -1,10 +1,13 @@
 function glove_contour = detect_glove_contour(image)
     
+    % image = medfilt2(rgb2gray(image), [3,3]);
+    % image = imbinarize(image);
+    % figure; imshow(image); title('median');
     % image = imread('img24.jpg');
     % figure; imshow(image);
     glove_hsv = rgb2hsv(image);
-    % figure; imshow(glove_hsv); title('hsv');
-    % impixelinfo;
+    figure; imshow(glove_hsv); title('hsv');
+    impixelinfo;
 
     hue_channel = glove_hsv(:,:,1);
     saturation_channel = glove_hsv(:,:,2);
@@ -30,11 +33,11 @@ function glove_contour = detect_glove_contour(image)
     dominant_color = [dominant_hue, dominant_saturation, dominant_value];
     % disp(dominant_color);
 
-    bright_lower = [0,0,127] / 255;
+    bright_lower = [0,0,128] / 255;
     bright_upper = [255,255,255] / 255;
 
     dark_lower = [0,0,0] / 255;
-    dark_upper = [255,255,126] / 255;
+    dark_upper = [255,255,127] / 255;
 
     % Check if dominant color is within the first range
     is_dark = all(dominant_color >= dark_lower) && all(dominant_color <= dark_upper);
@@ -44,21 +47,21 @@ function glove_contour = detect_glove_contour(image)
 
     % Define lower and upper bounds for glove color in HSV space
     if is_bright
-        disp('Bright.');
+        % disp('Bright.');
         glove_lower = [0,0,85] / 255;
         glove_upper = [255,110,255] / 255;
     end
     if is_dark
-        disp('Dark.');
+        % disp('Dark.');
         glove_lower = [0,0,0] / 255;
         glove_upper = [255,255,110] / 255;
     end
     if ~is_dark && ~is_bright
-        disp('Neither.')
+        % disp('Neither.')
     end
 
-    disp(glove_upper);
-    disp(glove_lower);
+    % disp(glove_upper);
+    % disp(glove_lower);
 
     % Create mask for glove color in HSV space
     glove_mask = (glove_hsv(:,:,1) >= glove_lower(1) & glove_hsv(:,:,1) <= glove_upper(1)) & ...
