@@ -1,10 +1,4 @@
-function glove_contour = detect_glove_contour(image)
-    
-    % image = medfilt2(rgb2gray(image), [3,3]);
-    % image = imbinarize(image);
-    % figure; imshow(image); title('median');
-    % image = imread('img24.jpg');
-    % figure; imshow(image);
+function [glove_contour] = detect_glove_contour(image)   
     glove_hsv = rgb2hsv(image);
     figure; imshow(glove_hsv); title('hsv');
     impixelinfo;
@@ -31,7 +25,6 @@ function glove_contour = detect_glove_contour(image)
 
     % Extract the dominant color
     dominant_color = [dominant_hue, dominant_saturation, dominant_value];
-    % disp(dominant_color);
 
     bright_bg_lower = [0,0,128] / 255;
     bright_bg_upper = [255,255,255] / 255;
@@ -47,17 +40,12 @@ function glove_contour = detect_glove_contour(image)
 
     % Define lower and upper bounds for glove color in HSV space
     if is_bright
-        % disp('Bright.');
         glove_lower = [0,0,85] / 255;
         glove_upper = [255,110,255] / 255;
     end
     if is_dark
-        % disp('Dark.');
         glove_lower = [0,0,0] / 255;
         glove_upper = [255,255,110] / 255;
-    end
-    if ~is_dark && ~is_bright
-        % disp('Neither.')
     end
 
     % disp(glove_upper);
@@ -68,11 +56,9 @@ function glove_contour = detect_glove_contour(image)
            (glove_hsv(:,:,2) >= glove_lower(2) & glove_hsv(:,:,2) <= glove_upper(2)) & ...
            (glove_hsv(:,:,3) >= glove_lower(3) & glove_hsv(:,:,3) <= glove_upper(3));
 
-    % figure; imshow(glove_mask); title('Mask');
     % Extract glove region
     glove_extracted = glove_hsv;
     glove_extracted(repmat(~glove_mask,[1 1 3])) = 0;
-    % figure; imshow(glove_extracted); title('remap');
 
     % Convert to binary mask
     glove_binary = glove_extracted(:,:,1) > 0 | glove_extracted(:,:,2) > 0 | glove_extracted(:,:,3) > 0;
@@ -87,22 +73,16 @@ function glove_contour = detect_glove_contour(image)
     glove_contours = bwboundaries(glove_binary);
 
     largest_contour_area = -1;
-    largest_contour_Index = -1;
+    largest_contour_index = -1;
 
-    % figure;
-    % imshow(image); title('detect glove contour');
-    % hold on;
     for i = 1:length(glove_contours)
         current_contour = glove_contours{i};
         current_contour_area = polyarea(current_contour(:, 2), current_contour(:, 1));
-        % plot(current_contour(:,2), current_contour(:,1), 'g', 'LineWidth', 2);
-
         if current_contour_area > largest_contour_area
             largest_contour_area = current_contour_area;
-            largest_contour_Index = i;
+            largest_contour_index = i;
         end
     end
-    % hold off;
-    glove_contour = glove_contours{largest_contour_Index};
-    % disp(size(glove_contour, 1));
+
+    glove_contour = glove_contours{largest_contour_index};
 end

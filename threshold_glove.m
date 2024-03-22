@@ -1,13 +1,12 @@
-function [thresholded_glove, main_glove_contour] = threshold_glove(image)
+function [thresholded_glove, main_glove_contour, glove_convex_hull] = threshold_glove(image)
     % Read the glove image
     % original_img = imread('img9.jpg');
     % glove_image = find_glove_contour(original_img);
     
-    gray_img = rgb2gray(image);
-    main_glove_contour = detect_glove_contour(image);
-    glove_mask = poly2mask(main_glove_contour(:,2), main_glove_contour(:,1), size(gray_img, 1), size(gray_img, 2));
+    [main_glove_contour] = detect_glove_contour(image);
+    glove_mask = poly2mask(main_glove_contour(:,2), main_glove_contour(:,1), size(image, 1), size(image, 2));
     
-    figure; imshow(image);
+    figure; imshow(glove_mask); title(' threshold glove - main glove contour');
     hold on;
     plot(main_glove_contour(:,2), main_glove_contour(:,1), 'g', 'LineWidth', 2);
     hold off;
@@ -47,9 +46,9 @@ function [thresholded_glove, main_glove_contour] = threshold_glove(image)
     saturationThreshold = [saturationMean - threshold_multipler*saturationStd, saturationMean + threshold_multipler*saturationStd]; % Example threshold range for saturation
     valueThreshold = [valueMean - threshold_multipler*valueStd, valueMean + threshold_multipler*valueStd]; % Example threshold range for value
     
-    disp(hueThreshold);
-    disp(saturationThreshold);
-    disp(valueThreshold);
+    % disp(hueThreshold);
+    % disp(saturationThreshold);
+    % disp(valueThreshold);
     
     % Thresholding
     binaryMask = (hueChannel >= hueThreshold(1) & hueChannel <= hueThreshold(2)) & ...
@@ -59,20 +58,26 @@ function [thresholded_glove, main_glove_contour] = threshold_glove(image)
     % Perform morphological operations
     thresholded_glove = imclose(binaryMask, strel('disk', 5)); % Example closing operation
     % thresholded_glove = imdilate(thresholded_glove, strel('disk', 5)); % Example closing operation
-    
-    % figure;
-    % imshow(original_img);
-    % title('Original Image');
-    % % figure;
-    % % imshow(glove_image);
-    % % title('Glove Image');
-    % figure;
-    % imshow(hsvImage);
-    % title('HSV Image');
-    % impixelinfo;
-    % figure;
-    % imshow(thresholded_glove);
-    % title('Binary Mask');
+
+    % Re-evaluate the main_glove_contour
+    glove_contours = bwboundaries(thresholded_glove);
+
+    largest_contour_area = -1;
+    largest_contour_index = -1;
+
+    for i = 1:length(glove_contours)
+        current_contour = glove_contours{i};
+        current_contour_area = polyarea(current_contour(:, 2), current_contour(:, 1));
+        if current_contour_area > largest_contour_area
+            largest_contour_area = current_contour_area;
+            largest_contour_index = i;
+        end
+    end
+
+    main_glove_contour = glove_contours{largest_contour_index};
+
+    % Calculate the convex hull of the contour
+    glove_convex_hull = convhull(main_glove_contour(:, 2), main_glove_contour(:, 1), 'Simplify', true);
 end
 
 
