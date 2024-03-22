@@ -44,11 +44,6 @@ function [finger_mask, finger_bbox] = extract_only_finger_mask(image)
         finger_mask(stats(fingerIdx).PixelIdxList) = true;
     end
 
-    figure; imshow(image);
-    hold on;
-    % rectangle('Position', finger_bbox, 'EdgeColor', 'r', 'LineWidth', 2);
-    hold off;
-    % title('Extracted Finger Mask with Bounding Box');
 end
 
 
