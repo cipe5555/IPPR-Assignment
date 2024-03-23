@@ -1,8 +1,6 @@
 function [glove_contour] = detect_glove_contour(image)
 
     glove_hsv = rgb2hsv(image);
-    figure; imshow(glove_hsv); title('hsv');
-    impixelinfo;
 
     % Extract individual channels
     hue_channel = glove_hsv(:,:,1);
@@ -50,9 +48,6 @@ function [glove_contour] = detect_glove_contour(image)
         glove_lower = [0,0,0] / 255;
         glove_upper = [255,255,110] / 255;
     end
-
-    % disp(glove_upper);
-    % disp(glove_lower);
 
     % Create mask for the glove
     glove_mask = (glove_hsv(:,:,1) >= glove_lower(1) & glove_hsv(:,:,1) <= glove_upper(1)) & ...

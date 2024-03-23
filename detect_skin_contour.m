@@ -12,8 +12,6 @@ function [skin_mask, finger_stats] = detect_skin_contour(image)
                 (hsv_image(:,:,2) >= saturationRange(1)) & (hsv_image(:,:,2) <= saturationRange(2)) & ...
                 (hsv_image(:,:,3) >= valueRange(1)) & (hsv_image(:,:,3) <= valueRange(2));
 
-    figure; imshow(skin_mask); title('skin mask');
-
     % Perform morphological operations
     se = strel('disk', 5);
     skin_mask = imdilate(skin_mask, se);

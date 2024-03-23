@@ -4,11 +4,6 @@ function [thresholded_glove, main_glove_contour, glove_convex_hull] = threshold_
     [main_glove_contour] = detect_glove_contour(image);
     glove_mask = poly2mask(main_glove_contour(:,2), main_glove_contour(:,1), size(image, 1), size(image, 2));
     
-    figure; imshow(glove_mask); title(' threshold glove - main glove contour');
-    hold on;
-    plot(main_glove_contour(:,2), main_glove_contour(:,1), 'g', 'LineWidth', 2);
-    hold off;
-    
     % Create a new image where everything outside the contour is remove
     masked_image = image;
 
@@ -45,10 +40,6 @@ function [thresholded_glove, main_glove_contour, glove_convex_hull] = threshold_
     hueThreshold = [hueMean - threshold_multipler*hueStd, hueMean + threshold_multipler*hueStd];
     saturationThreshold = [saturationMean - threshold_multipler*saturationStd, saturationMean + threshold_multipler*saturationStd];
     valueThreshold = [valueMean - threshold_multipler*valueStd, valueMean + threshold_multipler*valueStd];
-    
-    % disp(hueThreshold);
-    % disp(saturationThreshold);
-    % disp(valueThreshold);
     
     % Thresholding
     binaryMask = (hueChannel >= hueThreshold(1) & hueChannel <= hueThreshold(2)) & ...
