@@ -21,6 +21,7 @@ function [skin_mask, finger_stats] = detect_skin_contour(image)
     % Extract connected components
     labeledImage = bwlabel(skin_mask);
     finger_stats = regionprops(labeledImage, 'Area', 'BoundingBox');
+    
 end
 
 

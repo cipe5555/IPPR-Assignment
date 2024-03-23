@@ -4,7 +4,7 @@ clearvars;
 img = imread('img1.jpg');
 [rows, cols, ~] = size(img);
 
-glove_type = 'Nitrile';
+glove_type = 'Nitraile';
 
 % Resize the image
 target_size = 1500;
@@ -23,20 +23,17 @@ img = imresize(img, target_size);
 % Extract the contours in the glove
 boundaries = bwboundaries(glove_mask);
 
-% Extract the vertices of the convex hull
-convex_hull_vertices = main_glove_contour(glove_convex_hull,:);
-glove_contour_x = main_glove_contour(:, 2);
-glove_contour_y = main_glove_contour(:, 1);
-
 % Detect missing fingers
 [finger_candidates, curvature_candidates, missing_finger] = detect_missing_finger(img, main_glove_contour, glove_convex_hull);
 num_fingers = numel(finger_candidates);
 
 % Detect openings
-openings = detect_opening(main_glove_contour, img);
+openings = detect_opening(main_glove_contour);
 
-% Define hole and tear threshold
+% Define tear threshold
 min_tear_area = 1200;
+
+% Define hole threshold
 min_hole_area = 520;
 max_hole_area = 1200;
 
@@ -47,6 +44,22 @@ hold on;
 
 % Plot the convex hull
 plot(main_glove_contour(glove_convex_hull,2), main_glove_contour(glove_convex_hull,1), 'b', 'LineWidth', 2);
+
+if ~isempty(openings) && strcmp(glove_type, 'Nitrile')
+    for i = 1:length(openings)
+        rectangle('Position', openings{i},'EdgeColor','r','LineWidth',1);
+        text_position = [openings{i}(1) + 7, openings{i}(2) - 23];
+        text(text_position(1), text_position(2), 'Opening', 'Color', 'black', 'HorizontalAlignment', 'left', 'VerticalAlignment', 'middle', 'BackgroundColor', 'r', 'FontSize', 7);
+    end
+end
+
+if ~isempty(missing_finger) && ~strcmp(glove_type, 'Nitrile')
+     for i = 1:length(missing_finger)
+        rectangle('Position', missing_finger(i).BoundingBox,'EdgeColor','r','LineWidth',1);
+        text_position = [missing_finger(i).BoundingBox(1) + 7, missing_finger(i).BoundingBox(2) - 23];
+        text(text_position(1), text_position(2), 'Missing Finger', 'Color', 'black', 'HorizontalAlignment', 'left', 'VerticalAlignment', 'middle', 'BackgroundColor', 'r', 'FontSize', 7);
+     end      
+end
 
 for k = 1:length(boundaries)
     
@@ -82,22 +95,6 @@ for k = 1:length(boundaries)
             elseif defect_area >= min_tear_area 
                 rectangle('Position', bounding_box, 'EdgeColor', 'r', 'LineWidth', 1);
                 text(text_position(1), text_position(2), 'Tear', 'Color', 'black', 'HorizontalAlignment', 'left', 'VerticalAlignment', 'middle', 'BackgroundColor', 'r', 'FontSize', 7);
-            end
-
-            if ~isempty(openings) && strcmp(glove_type, 'Nitrile')
-                for i = 1:length(openings)
-                    rectangle('Position', openings{i},'EdgeColor','r','LineWidth',1);
-                    text_position = [openings{i}(1) + 7, openings{i}(2) - 23];
-                    text(text_position(1), text_position(2), 'Opening', 'Color', 'black', 'HorizontalAlignment', 'left', 'VerticalAlignment', 'middle', 'BackgroundColor', 'r', 'FontSize', 7);
-                end
-            end
-
-            if ~isempty(missing_finger) && ~strcmp(glove_type, 'Nitrile')
-                 for i = 1:length(missing_finger)
-                    rectangle('Position', missing_finger(i).BoundingBox,'EdgeColor','r','LineWidth',1);
-                    text_position = [missing_finger(i).BoundingBox(1) + 7, missing_finger(i).BoundingBox(2) - 23];
-                    text(text_position(1), text_position(2), 'Missing Finger', 'Color', 'black', 'HorizontalAlignment', 'left', 'VerticalAlignment', 'middle', 'BackgroundColor', 'r', 'FontSize', 7);
-                 end      
             end
         end
     end

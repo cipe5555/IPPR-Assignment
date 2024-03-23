@@ -84,4 +84,9 @@ function [glove_contour] = detect_glove_contour(image)
     end
 
     glove_contour = glove_contours{largest_contour_index};
+    
 end
+
+
+
+

@@ -1,4 +1,4 @@
-function openings = detect_opening(main_glove_contour, image)
+function openings = detect_opening(main_glove_contour)
 
     num_points = size(main_glove_contour, 1);
 
@@ -26,7 +26,7 @@ function openings = detect_opening(main_glove_contour, image)
     % Define a threshold for the minimum bounding box area
     threshold_area = 1000;
     
-    % Find indices where angles is between 45 degree to 90 degree and 270 degree to 315 degree
+    % Find indices where angles is greater than the threshold
     change_indices = find(angles >= threshold_angle);
 
     % Group changes together

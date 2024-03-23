@@ -29,7 +29,8 @@ function [finger_candidates, curvature_candidates, missing_finger] = detect_miss
         distance_to_centroid = distances(i);
     
         % Check if the point is on the boundary of the image
-        if glove_contour_x(current_index) == 1 || glove_contour_x(current_index) == size(image, 2) || glove_contour_y(current_index) == 1 || glove_contour_y(current_index) == size(image, 1)
+        if glove_contour_x(current_index) == 1 || glove_contour_x(current_index) == size(image, 2) ...
+            || glove_contour_y(current_index) == 1 || glove_contour_y(current_index) == size(image, 1)
             % Boundary points don't have curvature
             curvature = NaN;
         else

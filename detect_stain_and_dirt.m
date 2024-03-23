@@ -27,16 +27,13 @@ function stain_or_dirt = detect_stain_and_dirt(image, boundary)
     dominant_color = [dominant_hue, dominant_saturation, dominant_value];
 
     % Define stain threshold
-    dark_stain_lower = [0,0,0] / 255;
-    dark_stain_upper = [255,255,127] / 255;
+    stain_lower = [0,0,0] / 255;
+    stain_upper = [255,255,127] / 255;
+    min_stain_area = 2000;
 
     % Define dirt threshold
     dirt_lower = [20,20,50] / 255;
     dirt_upper = [90,150,255] / 255;
-
-    % count_in_range = 0;
-    % count_threshold = stain_threshold_radius^2*0.75;
-    min_stain_area = 2000;
     min_dirt_area = 2000;
 
     % Check if dominant color is within the dirt range
@@ -46,8 +43,9 @@ function stain_or_dirt = detect_stain_and_dirt(image, boundary)
     if is_dirt
         stain_or_dirt = 'Dirt';
     else
+        
         % Check if dominant color is within the stain range
-        is_stain_colour = all(dominant_color >= dark_stain_lower) && all(dominant_color <= dark_stain_upper);
+        is_stain_colour = all(dominant_color >= stain_lower) && all(dominant_color <= stain_upper);
         is_stain = is_stain_colour && polyarea(boundary(:,2), boundary(:,1)) > min_stain_area;
         if is_stain
             stain_or_dirt = 'Stain';
