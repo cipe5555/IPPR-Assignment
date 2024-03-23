@@ -1,8 +1,10 @@
-function [glove_contour] = detect_glove_contour(image)   
+function [glove_contour] = detect_glove_contour(image)
+
     glove_hsv = rgb2hsv(image);
     figure; imshow(glove_hsv); title('hsv');
     impixelinfo;
 
+    % Extract individual channels
     hue_channel = glove_hsv(:,:,1);
     saturation_channel = glove_hsv(:,:,2);
     value_channel = glove_hsv(:,:,3);
@@ -26,16 +28,17 @@ function [glove_contour] = detect_glove_contour(image)
     % Extract the dominant color
     dominant_color = [dominant_hue, dominant_saturation, dominant_value];
 
+    % Define light and dark background threshold
     bright_bg_lower = [0,0,128] / 255;
     bright_bg_upper = [255,255,255] / 255;
 
     dark_bg_lower = [0,0,0] / 255;
     dark_bg_upper = [255,255,127] / 255;
 
-    % Check if dominant color is within the first range
+    % Check if dominant color is within the dark background range
     is_dark = all(dominant_color >= dark_bg_lower) && all(dominant_color <= dark_bg_upper);
 
-    % Check if dominant color is within the second range
+    % Check if dominant color is within the light background range
     is_bright = all(dominant_color >= bright_bg_lower) && all(dominant_color <= bright_bg_upper);
 
     % Define lower and upper bounds for glove color in HSV space
@@ -51,7 +54,7 @@ function [glove_contour] = detect_glove_contour(image)
     % disp(glove_upper);
     % disp(glove_lower);
 
-    % Create mask for glove color in HSV space
+    % Create mask for the glove
     glove_mask = (glove_hsv(:,:,1) >= glove_lower(1) & glove_hsv(:,:,1) <= glove_upper(1)) & ...
            (glove_hsv(:,:,2) >= glove_lower(2) & glove_hsv(:,:,2) <= glove_upper(2)) & ...
            (glove_hsv(:,:,3) >= glove_lower(3) & glove_hsv(:,:,3) <= glove_upper(3));
@@ -70,6 +73,7 @@ function [glove_contour] = detect_glove_contour(image)
     glove_binary = imerode(glove_binary, se);
     glove_binary = imfill(glove_binary, 'holes');
 
+    % Find the main glove contour by extracting the largest contour
     glove_contours = bwboundaries(glove_binary);
 
     largest_contour_area = -1;

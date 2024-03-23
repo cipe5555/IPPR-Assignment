@@ -1,8 +1,6 @@
 function [thresholded_glove, main_glove_contour, glove_convex_hull] = threshold_glove(image)
-    % Read the glove image
-    % original_img = imread('img9.jpg');
-    % glove_image = find_glove_contour(original_img);
     
+    % Obtain the outer main glove contour
     [main_glove_contour] = detect_glove_contour(image);
     glove_mask = poly2mask(main_glove_contour(:,2), main_glove_contour(:,1), size(image, 1), size(image, 2));
     
@@ -13,7 +11,9 @@ function [thresholded_glove, main_glove_contour, glove_convex_hull] = threshold_
     
     % Create a new image where everything outside the contour is remove
     masked_image = image;
-    for i = 1:3 % Iterate over each color channel (RGB)
+
+    % Iterate over each color channel (RGB)
+    for i = 1:3
         masked_image(:,:,i) = image(:,:,i) .* uint8(glove_mask);
     end
     
@@ -30,7 +30,7 @@ function [thresholded_glove, main_glove_contour, glove_convex_hull] = threshold_
     valueChannel = hsvImage(:,:,3);
     value_in_contour = valueChannel(valueChannel > 0);
     
-    % Calculate statistics of the hue channel
+    % Calculate statistics of each channel
     hueMean = mean2(hue_in_contour);
     hueStd = std2(hue_in_contour);
     
@@ -42,9 +42,9 @@ function [thresholded_glove, main_glove_contour, glove_convex_hull] = threshold_
     
     % Define threshold ranges based on statistics
     threshold_multipler = 3.0;
-    hueThreshold = [hueMean - threshold_multipler*hueStd, hueMean + threshold_multipler*hueStd]; % Adjust factor as needed
-    saturationThreshold = [saturationMean - threshold_multipler*saturationStd, saturationMean + threshold_multipler*saturationStd]; % Example threshold range for saturation
-    valueThreshold = [valueMean - threshold_multipler*valueStd, valueMean + threshold_multipler*valueStd]; % Example threshold range for value
+    hueThreshold = [hueMean - threshold_multipler*hueStd, hueMean + threshold_multipler*hueStd];
+    saturationThreshold = [saturationMean - threshold_multipler*saturationStd, saturationMean + threshold_multipler*saturationStd];
+    valueThreshold = [valueMean - threshold_multipler*valueStd, valueMean + threshold_multipler*valueStd];
     
     % disp(hueThreshold);
     % disp(saturationThreshold);
@@ -56,10 +56,9 @@ function [thresholded_glove, main_glove_contour, glove_convex_hull] = threshold_
                  (valueChannel >= valueThreshold(1) & valueChannel <= valueThreshold(2));
     
     % Perform morphological operations
-    thresholded_glove = imclose(binaryMask, strel('disk', 5)); % Example closing operation
-    % thresholded_glove = imdilate(thresholded_glove, strel('disk', 5)); % Example closing operation
+    thresholded_glove = imclose(binaryMask, strel('disk', 5));
 
-    % Re-evaluate the main_glove_contour
+    % Re-evaluate the main_glove_contour by extracting the largest contour
     glove_contours = bwboundaries(thresholded_glove);
 
     largest_contour_area = -1;
@@ -76,7 +75,7 @@ function [thresholded_glove, main_glove_contour, glove_convex_hull] = threshold_
 
     main_glove_contour = glove_contours{largest_contour_index};
 
-    % Calculate the convex hull of the contour
+    % Calculate the convex hull of the main glove contour
     glove_convex_hull = convhull(main_glove_contour(:, 2), main_glove_contour(:, 1), 'Simplify', true);
 end
 
